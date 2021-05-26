@@ -3,6 +3,7 @@ const startStopButton = document.querySelector('.startStop')
 
 let intervalId = null
 let isStarted = false
+let lastIntervalTime = null
 let time = 0
 
 function startStop(){
@@ -14,25 +15,35 @@ function startStop(){
 }
 
 function writeTime(){
+  // @TODO display in 00:00:000 format
   const milliseconds = time / 1000
   timeElement.innerText = milliseconds.toFixed(3)
 }
 
-function tick(){
-  time = time + 1
+function tick(timestamp){
+  if(!isStarted) return false
+  const stepTime = lastIntervalTime ? timestamp - lastIntervalTime : 0
+
+  time = time + stepTime
   writeTime()
+
+  console.log(stepTime)
+
+  lastIntervalTime = timestamp
+
+  requestAnimationFrame(tick)
 }
 
 function start(){
   isStarted = true
   startStopButton.innerText = 'STOP'
-  intervalId = setInterval(tick, 1)
+  requestAnimationFrame(tick)
 }
 
 function stop(){
   isStarted = false
   startStopButton.innerText = 'START'
-  if(intervalId) clearInterval(intervalId)
+  lastIntervalTime = null
 }
 
 startStopButton.addEventListener(
